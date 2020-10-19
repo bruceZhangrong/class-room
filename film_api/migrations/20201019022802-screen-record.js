@@ -1,8 +1,8 @@
 'use strict'
 
-let dbm = null
-let type = null
-let seed = null
+var dbm
+var type
+var seed
 
 /**
   * We receive the dbmigrate dependency from dbmigrate initially.
@@ -15,17 +15,21 @@ exports.setup = function (options, seedLink) {
 }
 
 exports.up = function (db) {
-  return db.createTable('users', {
-    id: { type: 'int', primaryKey: true, notNull: true, autoIncrement: true },
-    name: 'string',
-    age: 'int',
-    phone: { type: 'string', length: 11 },
-    class: { type: 'string', notNull: true }
+  return db.createTable('screen_recode', {
+    id: {
+      type: 'int',
+      primaryKey: true,
+      notNull: true,
+      autoincrement: true
+    },
+    info: { type: 'string' },
+    user_id: { type: 'int', notNull: true },
+    createTime: { type: 'string', notNull: true }
   })
 }
 
 exports.down = function (db) {
-  return db.dropTable('users')
+  return db.dropTable('screen_recode')
 }
 
 exports._meta = {

@@ -66,3 +66,8 @@ export const getOrderByUserId = (userId) => ajax('/api/getOrderByUserId', { user
 export const getWishMovieByUserId = (userId) => ajax('/api/getWishMovieByUserId', { userId })
 // 获取个人评论的电影
 export const getIsWatchedMovieByUserId = (userId) => ajax('/api/getIsWatchedMovieByUserId', { userId })
+
+// save rrweb data
+export const postSaveScreenRecord = parmas => ajax('/api/screen-record', parmas, 'POST')
+
+export const getScreenRecord = parmas => ajax('/api/screen-record', parmas)

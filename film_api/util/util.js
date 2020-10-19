@@ -1,3 +1,5 @@
+const moment = require('moment')
+
 const UTIL = {
   /* 生成指定长度的随机数 */
   randomCode (length) {
@@ -22,6 +24,35 @@ const UTIL = {
       code: code,
       message: msg
     }
+  },
+
+  getCookie (cookie = '', ...names) {
+    if (!cookie || !names || !names.length) {
+      return []
+    }
+    return names.map(name => cookie.split(';').find(v => v.includes(name)).split('=')[1])
+  },
+
+  writeLog (req, res, next) {
+    const fs = require('fs')
+    const path = require('path')
+    const name = moment().format('YYYYMMDD')
+    const logPath = path.join(`/log/${name}.log`)
+    fs.stat(logPath, (err, stats) => {
+      if (err) {
+        UTIL.log(err)
+        return false
+      }
+      if (stats.isFile()) {
+        fs.appendFile(logPath, req, err => {
+          if (err) throw err
+        })
+      } else {
+        fs.writeFile(logPath, req, err => {
+          if (err) throw err
+        })
+      }
+    })
   }
 }
 

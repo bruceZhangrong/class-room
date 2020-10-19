@@ -15,6 +15,7 @@
     "ly-tab": "^2.1.2",
     "mint-ui": "^2.2.13",
     "moment": "^2.26.0",
+    "rrweb": "^0.9.7",
     "stylus": "^0.54.5",
     "stylus-loader": "^3.0.2",
     "swiper": "^4.5.0",

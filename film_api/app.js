@@ -4,6 +4,7 @@ const path = require('path')
 const cookieParser = require('cookie-parser')
 const logger = require('morgan')
 const session = require('express-session')
+const bodyParser = require('body-parser')
 
 const indexRouter = require('./routes/index')
 
@@ -14,6 +15,9 @@ app.set('views', path.join(__dirname, 'views'))
 app.set('view engine', 'ejs')
 // 托管静态文件
 app.use(express.static('public'))
+
+app.use(bodyParser.json({ limit: '50mb' }))
+app.use(bodyParser.urlencoded({ limit: '50mb', extended: true, parameterLimit: 50000 }))
 
 //
 app.use(session({
@@ -58,7 +62,7 @@ app.use(function (err, req, res, next) {
   res.status(err.status || 500)
   res.render('error')
 })
-// app.listen(3000, () => {
-//   console.log('http://localhost:3000 listen to the port 3000')
-// });
+app.listen(3000, () => {
+  console.log('http://localhost:3000 listen to the port 3000')
+})
 module.exports = app
