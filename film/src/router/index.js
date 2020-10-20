@@ -22,6 +22,7 @@ import MyMovie from '../pages/My/children/MyMovie'
 import ModifyUserName from '../pages/My/children/ModifyUserName'
 import ModifyUserSign from '../pages/My/children/ModifyUserSign'
 import Rrweb from '../pages/rrweb'
+import screenRecord from '../pages/rrweb/screen-record'
 
 Vue.use(Router)
 
@@ -34,6 +35,13 @@ export default new Router({
     {
       path: '/rrweb',
       component: Rrweb,
+      meta: {
+        showTabBar: false
+      }
+    },
+    {
+      path: '/screen-record',
+      component: screenRecord,
       meta: {
         showTabBar: false
       }

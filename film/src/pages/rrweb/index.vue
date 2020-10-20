@@ -3,18 +3,21 @@
     <mt-field label="First Name" placeholder="First Name" v-model="form.firstName"></mt-field>
     <mt-field label="Last Name" placeholder="Last Name" v-model="form.lastName"></mt-field>
     <mt-field label="Phone" placeholder="Phone"  v-model="form.phone" :attr="{ maxlength: 11 }"></mt-field>
+
+    <mt-button @click.native="$router.push('/screen-record')" type="primary">Radio</mt-button>
   </div>
 </template>
 
 <script>
 import { postSaveScreenRecord } from '../../api/index'
-import { Field } from 'mint-ui'
+import { Field, Button } from 'mint-ui'
 import * as rrweb from 'rrweb'
 import moment from 'moment'
 
 export default {
   components: {
-    mtField: Field
+    mtField: Field,
+    mtButton: Button
   },
   data () {
     return {

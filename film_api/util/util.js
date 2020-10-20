@@ -16,6 +16,7 @@ const UTIL = {
     params = params.map(k => typeof k !== 'object' ? `\x1B[1m\x1B[31m${k}\x1B[0m` : k)
     console.log('\n======= Log Message ========\n')
     console.log(...params)
+    UTIL.writeLog(`${JSON.stringify(...params)}\r\n`)
     console.log('\n============================\n')
   },
 
@@ -37,20 +38,12 @@ const UTIL = {
     const fs = require('fs')
     const path = require('path')
     const name = moment().format('YYYYMMDD')
-    const logPath = path.join(`/log/${name}.log`)
-    fs.stat(logPath, (err, stats) => {
+    const logPath = path.join(__dirname, `../log/${name}.log`)
+
+    fs.appendFile(logPath, req, err => {
       if (err) {
-        UTIL.log(err)
-        return false
-      }
-      if (stats.isFile()) {
-        fs.appendFile(logPath, req, err => {
-          if (err) throw err
-        })
-      } else {
-        fs.writeFile(logPath, req, err => {
-          if (err) throw err
-        })
+        UTIL.log(err.code)
+        throw err
       }
     })
   }

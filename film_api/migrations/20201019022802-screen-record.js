@@ -15,21 +15,21 @@ exports.setup = function (options, seedLink) {
 }
 
 exports.up = function (db) {
-  return db.createTable('screen_recode', {
+  return db.createTable('screen_record', {
     id: {
       type: 'int',
       primaryKey: true,
       notNull: true,
-      autoincrement: true
+      autoIncrement: true
     },
-    info: { type: 'string' },
+    info: { type: 'text' },
     user_id: { type: 'int', notNull: true },
-    createTime: { type: 'string', notNull: true }
+    create_time: { type: 'string', notNull: true }
   })
 }
 
 exports.down = function (db) {
-  return db.dropTable('screen_recode')
+  return db.dropTable('screen_record')
 }
 
 exports._meta = {
