@@ -71,3 +71,5 @@ export const getIsWatchedMovieByUserId = (userId) => ajax('/api/getIsWatchedMovi
 export const postSaveScreenRecord = parmas => ajax('/api/screen-record', parmas, 'POST')
 
 export const getScreenRecord = parmas => ajax('/api/screen-record', parmas)
+
+export const deleteScreenRecord = parmas => ajax('/api/screen-record', parmas, 'delete')

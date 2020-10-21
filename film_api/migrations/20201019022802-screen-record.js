@@ -22,7 +22,7 @@ exports.up = function (db) {
       notNull: true,
       autoIncrement: true
     },
-    info: { type: 'text' },
+    info: { type: 'mediumtext' },
     user_id: { type: 'int', notNull: true },
     create_time: { type: 'string', notNull: true }
   })
