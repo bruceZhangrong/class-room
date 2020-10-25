@@ -31,7 +31,7 @@ const UTIL = {
     if (!cookie || !names || !names.length) {
       return []
     }
-    return names.map(name => cookie.split(';').find(v => v.includes(name)).split('=')[1])
+    return cookie ? names.map(name => cookie.split(';').find(v => v.includes(name)).split('=')[1]) : []
   },
 
   writeLog (req, res, next) {

@@ -6,8 +6,16 @@
     <mt-field label="Street" placeholder="Street" v-model="form.street"></mt-field>
     <mt-field label="City" placeholder="City" v-model="form.city"></mt-field>
     <mt-field label="Birth" placeholder="Date of Birth" v-model="form.birth"></mt-field>
-
-    <mt-button @click.native="$router.push('/screen-record')" type="primary">Records</mt-button>
+    <div style="margin-bottom: 10px;">
+      <mt-button @click.native="startRecord" type="primary" size="small">Start Record</mt-button>
+      <mt-button @click.native="save" type="primary" size="small">Save</mt-button>
+      <mt-button @click.native="stopRecord" type="primary" size="small">Stop</mt-button>
+    </div>
+    <div style="margin-bottom: 10px;" v-if="recordTime">
+      <span style="margin-right: 20px;">开始时间：{{ recordTime }}</span>
+      <span>已录制：{{ recordTimes }} s</span>
+    </div>
+    <mt-button @click.native="$router.push('/screen-record')" type="primary" size="small">Records</mt-button>
   </div>
 </template>
 
@@ -33,7 +41,11 @@ export default {
         birth: ''
       },
       allEvents: [],
-      timer: null
+      timer: null,
+      speed: 30000,
+      stopRecordFn: null,
+      recordTime: '',
+      recordTimes: 0
     }
   },
   watch: {
@@ -42,8 +54,35 @@ export default {
     // }
   },
   methods: {
+    startRecord () {
+      const _this = this
+      this.stopRecordFn = rrweb.record({
+        emit (event) {
+          _this.allEvents.push(event)
+        }
+      })
+      this.recordTime = moment().format('hh:mm:ss')
+      this.recordtTimer = setInterval(() => {
+        this.recordTime = moment().format('hh:mm:ss')
+        this.recordTimes++
+      }, 1000)
+      // this.timer = setInterval(() => {
+      //   this.saveEvents(this.allEvents)
+      //   this.allEvents = []
+      // }, this.speed)
+    },
+    stopRecord () {
+      this.stopRecordFn && this.stopRecordFn()
+      clearInterval(this.recordtTimer)
+      this.recordTimes = 0
+    },
+    save () {
+      this.saveEvents(this.allEvents)
+      this.allEvents = []
+    },
     saveEvents (arr) {
       this.allEvents = []
+      console.log(this.allEvents)
       const time = moment().format('YYYY-MM-DD HH:mm:ss')
       const str = JSON.stringify(arr)
       localStorage.setItem(`${time}`, str)
@@ -54,22 +93,11 @@ export default {
     }
   },
   mounted () {
-    const _this = this
-    this.$nextTick(() => {
-      rrweb.record({
-        emit (event) {
-          _this.allEvents.push(event)
-        }
-      })
-
-      this.timer = setInterval(() => {
-        this.saveEvents(this.allEvents)
-        this.allEvents = []
-      }, 60000)
-    })
+    
   },
   destroyed () {
-    clearInterval(this.timer)
+    this.stopRecordFn && this.stopRecordFn()
+    // clearInterval(this.timer)
   }
 }
 </script>

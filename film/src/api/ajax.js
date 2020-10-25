@@ -19,6 +19,7 @@ export default function ajax (url = '', params = {}, type = 'get') {
     promise.then(res => {
       resolve(res.data)
     }).catch(err => {
+      console.log(err)
       reject(err)
     })
   })
