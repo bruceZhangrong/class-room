@@ -1,5 +1,8 @@
 <template>
   <div class="rrweb-wrapper">
+    <div style="text-align: center; margin-bottom: 10px;">
+      <img src="../../assets/img/logo.png" alt="logo" width="20%">
+    </div>
     <mt-field label="First Name" placeholder="First Name" v-model="form.firstName"></mt-field>
     <mt-field label="Last Name" placeholder="Last Name" v-model="form.lastName"></mt-field>
     <mt-field label="Phone" placeholder="Phone"  v-model="form.phone" :attr="{ maxlength: 11 }"></mt-field>
@@ -16,6 +19,7 @@
       <span>已录制：{{ recordTimes }} s</span>
     </div>
     <mt-button @click.native="$router.push('/screen-record')" type="primary" size="small">Records</mt-button>
+    <img src="../../assets/img/home.png" width="100%" alt="">
   </div>
 </template>
 
@@ -78,11 +82,9 @@ export default {
     },
     save () {
       this.saveEvents(this.allEvents)
-      this.allEvents = []
     },
     saveEvents (arr) {
       this.allEvents = []
-      console.log(this.allEvents)
       const time = moment().format('YYYY-MM-DD HH:mm:ss')
       const str = JSON.stringify(arr)
       localStorage.setItem(`${time}`, str)

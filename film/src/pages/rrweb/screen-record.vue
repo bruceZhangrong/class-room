@@ -73,6 +73,7 @@ export default {
       // const replayer = new rrweb.Replayer(JSON.parse(events))
       // replayer.play()
       this.showPlayer = true
+      console.log(JSON.parse(events))
     },
     async getRadioList () {
       const list = await getScreenRecord()
