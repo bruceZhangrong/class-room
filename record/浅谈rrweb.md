@@ -74,20 +74,141 @@ document.replaceChild(doc, document.documentElement);
 
 利用浏览器提供的 `API` - [`MutationObserver`](https://developer.mozilla.org/zh-CN/docs/Web/API/MutationObserver) 来完成记录 `DOM` 节点的变动。
 
-回放功能是将被录制的 `DOM` 重建在⼀个 iframe 元素中，通过`HTML` 提供的 `iframe` 沙盒功能（[`sandbox`](https://www.w3school.com.cn/tags/att_iframe_sandbox.asp)属性）进⾏浏览器层⾯的限制：
+回放功能是将被录制的 `DOM` 重建在⼀个 `iframe` 元素中，通过`HTML` 提供的 `iframe` 沙盒功能（[`sandbox`](https://www.w3school.com.cn/tags/att_iframe_sandbox.asp)属性）进⾏浏览器层⾯的限制：
 > 脚本执行 (`allow-forms`)
 > 表单提交 (`allow-scripts`)
 > 允许 `iframe` 内容被视为与包含文档有相同的来源 (`allow-same-origin`)
 > 允许 `iframe` 内容从包含文档导航（加载）内容 (`allow-top-navigation`)
 
 
-录制端和回放端维护一份相同的 `id` -> `Node` 映射，将 `Oplog` 中交互的 `DOM` 节点和已存在的 `DOM` 关联在⼀起。将 `Oplog` 中的操作按照时间戳排列，放⼊⼀个操作队列中。
-启动⼀个计时器，不断检查操作队列，将到时间的操作取出重现，实现对应的回放功能。
+录制端和回放端维护一份相同的 `id` -> `Node` 映射，将 `Oplog` 中交互的 `DOM` 节点和已存在的 `DOM` 关联在⼀起。将 `Oplog` 中的操作按照时间戳排列，放⼊⼀个操作队列中。启动⼀个计时器，不断检查操作队列，将到时间的操作取出重现，实现对应的回放功能。
 
 
-`rrweb-player`， 为 `rrweb` 提供一套 UI 控件，提供基于 GUI 的暂停、快进、拖拽至任意时间点播放等功能。
+`rrweb-player`， 为 `rrweb` 提供一套 基于[svelte app](https://svelte.dev/) 的UI 控件，提供基于 GUI 的暂停、快进、拖拽至任意时间点播放等功能。
+
+##### 使用
+`rrweb`可以通过外部引入或者 `node`包 (`npm`)的方式引入。
+由于使用 `MutationObserver API`，`rrweb` 不支持 `IE11` 以下的浏览器。兼容的[浏览器](https://caniuse.com/mutationobserver)列表。
+
+`rrweb` 在录制阶段会不断将 `event` 传递给配置的 `emit` 方法：
+```javascript
+const allEvents = []
+const stopRecordFn = rrweb.record({
+   emit (event) {
+     allEvents.push(event)
+   }
+})
+```
+
+`record`的配置参数
+
+> 
+> emit - required -  获取当前录制的数据
+> checkoutEveryNth - 每 N 次事件重新制作一次全量快照，如 200
+> checkoutEveryNms -	 每 N 毫秒重新制作一次全量快照， 如 1000 * 60 * 10
+> blockClass - rr-block - 字符串或正则表达式，可用于自定义屏蔽元素的类名
+> ignoreClass - rr-ignore - 字符串或正则表达式，可用域自定义忽略元素的类名
+> maskAllInputs - false - 将所有输入内容记录为 *
+> maskInputOptions - {} - 选择将[特定类型](https://github.com/rrweb-io/rrweb-snapshot/blob/6728d12b3cddd96951c86d948578f99ada5749ff/src/types.ts#L72)的输入框内容记录为 *
+> inlineStylesheet - true - 是否将样式表内联
+> hooks - {} - [各类事件](https://github.com/rrweb-io/rrweb/blob/9488deb6d54a5f04350c063d942da5e96ab74075/src/types.ts#L207)的回调
+> packFn - 数据压缩函数，[优化存储](https://github.com/rrweb-io/rrweb/blob/master/docs/recipes/optimize-storage.zh_CN.md)
+> sampling - 数据抽样策略，[优化存储](https://github.com/rrweb-io/rrweb/blob/master/docs/recipes/optimize-storage.zh_CN.md)
+> recordCanvas - false - 是否记录 canvas 内容
+> collectFonts - false - 是否记录页面中的字体文件
+> 
+
+默认情况下，要重放内容需要所有的 `event`，如果你不想存储所有的 `event`，可以使用 `checkout` 配置。
+```javascript
+const allEvents = [[]]
+const stopRecordFn = rrweb.record({
+   emit (event, isCheckout) {
+     isCheckout && allEvents.push([])
+     allEvents[allEvents.length - 1].push(event)
+   },
+   checkoutEveryNth: 200,
+   // checkoutEveryNms: 1000 * 60,
+   maskInputOptions: {
+     number: true
+   },
+   // maskAllInputs: true,
+})
+```
+
+可以通过`rrweb`的 API `Replayer`来控制回放功能。
+
+```javascript
+
+const replayer = new rrweb.Replayer(events, options)
+
+replayer.play(ms) // 开始播放
+
+replayer.pause(ms) // 暂停播放
+
+```
+通过 `API` 控制回放，可以传入参数（毫秒）来控制播放或者暂停的时间节点。
+
+> 
+> 参数列表
+> speed - 1 - 回放倍速
+> root - document.body - 回放时使用的 HTML 元素
+> loadTimeout - 0 - 加载异步样式表的超时时长
+> skipInactive - false - 是否快速跳过无用户操作的阶段
+> showWarning - true - 是否在回放过程中打印警告信息
+> showDebug - false - 是否在回放过程中打印 debug 信息
+> blockClass - rr-block - 需要在回放时展示为隐藏区域的元素类名
+> liveMode - false - 是否开启直播模式
+> inertStyleRules - [ ] - 可以传入多个 CSS rule string，用于自定义回放时 iframe 内的样式
+> triggerFocus - true - 回放时是否回放 focus 交互
+> UNSAFE_replayCanvas - false - 回放时是否回放 canvas 内容，开启后将会关闭沙盒策略，导致一定风险
+> mouseTail - true - 是否在回放时增加鼠标轨迹。传入 false 可关闭，传入对象可以定制轨迹持续时间、样式等，配置详见类型
+> unpackFn - 数据解压缩函数
+> 
+
+也可使用 `rrweb-player`
+```javascript
+this.player = new RrwebPlayer({
+    target: document.querySelector('.player-box'),
+    props: {
+	    events: JSON.parse(events),
+	    width: this.playerConfig.width * 0.8,
+	    height: this.playerConfig.height * 0.8,
+	    unpackFn: rrweb.unpack
+	}
+})
+```
+> 增加的配置
+> events - [ ] -包含回放所需的数据
+> width - 1024 - 播放器宽度
+> height - 576 - 播放器高度
+> autoPlay - true - 是否自动播放
+> speedOption - [1, 2, 4, 8] - 倍速播放可选值
+> showController - true - 是否显示播放器控制 UI
+> tags - { } - 可以以 key value 的形式展示自定义事件在时间轴上的颜色
+
+如果需要监听回放时的各类事件，例如在跳过无用户操作的时间时给用户一些提示。
+`rrweb` 的 `Replayer` 提供了 `on` API 用于提供该功能，[事件列表](https://github.com/rrweb-io/rrweb/blob/master/guide.zh_CN.md#%E4%BA%8B%E4%BB%B6)
+```javascript
+const replayer = new rrweb.Replayer(events);
+replayer.on(EVENT_NAME, (payload) => {
+  // ...
+})
+```
+如果录制的`events`数据过大，需要进行数据拼接，或者异步获取数据后回放。可以通过
+```javascript
+const replayer = new rrweb.Replayer(events)
+
+replayer.addEvent(NEW_EVENT)
+
+// 或者
+for (const event of NEW_EVENTS) {
+  replayer.addEvent(event)
+}
+```
+只需要调用 `addEvent` 传入新的数据，`rrweb` 就会自动处理其中的时间关系进行回放。
 
 
 
+[rrweb 场景](https://github.com/rrweb-io/rrweb/blob/master/docs/recipes/index.zh_CN.md)
 [官方demo](https://www.rrweb.io/#demos)
 [社区](http://www.myriptide.com/rrweb-community-cn/)
