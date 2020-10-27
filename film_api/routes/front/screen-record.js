@@ -19,7 +19,7 @@ const SCREEN_RECORD = [
           result = JSON.parse(JSON.stringify(result))
           const jsonObj = result[0] ? {
             code: 1,
-            data: result.map(v => ({
+            data: result.sort((a, b) => b.id - a.id).map(v => ({
               id: v.id,
               info: v.info,
               createTime: v.create_time

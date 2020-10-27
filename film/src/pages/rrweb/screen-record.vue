@@ -12,7 +12,7 @@
     <div class="player-wrapper" v-show="showPlayer">
       <div class="player-box"></div>
       <mt-button
-        @click.native="showPlayer = false"
+        @click.native="closePlayer"
         type="default"
         size="small"
         class="close-player">
@@ -33,7 +33,7 @@
 <script>
 import { getScreenRecord, deleteScreenRecord } from '../../api/index'
 import RrwebPlayer from 'rrweb-player'
-// import * as rrweb from 'rrweb'
+import * as rrweb from 'rrweb'
 import { Button } from 'mint-ui'
 import 'rrweb-player/dist/style.css'
 
@@ -48,7 +48,8 @@ export default {
       playerConfig: {
         width: document.documentElement.clientWidth,
         height: document.documentElement.clientHeight
-      }
+      },
+      player: null
     }
   },
   created () {
@@ -61,12 +62,13 @@ export default {
     playerRecord (item) {
       const events = localStorage.getItem(item.createTime) || item.info
       // eslint-disable-next-line no-new
-      new RrwebPlayer({
+      this.player = new RrwebPlayer({
         target: document.querySelector('.player-box'),
         props: {
           events: JSON.parse(events),
           width: this.playerConfig.width * 0.8,
-          height: this.playerConfig.height * 0.8
+          height: this.playerConfig.height * 0.8,
+          unpackFn: rrweb.unpack
         }
       })
 
@@ -85,6 +87,11 @@ export default {
         id: id
       })
       isDeleted && this.getRadioList()
+    },
+
+    closePlayer () {
+      this.player.pause()
+      this.showPlayer = false
     }
   }
 }

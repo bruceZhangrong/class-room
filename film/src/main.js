@@ -27,6 +27,14 @@ Vue.use(cookies)
 //   ]
 // })
 
+// eslint-disable-next-line handle-callback-err
+Vue.config.errorHandler = function (err, vm, info) {
+  console.log(vm.errorHandler)
+  vm.errorHandler && vm.errorHandler(vm)
+  console.error(err)
+  console.log(info)
+}
+
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
